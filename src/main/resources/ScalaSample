@@ -1,0 +1,197 @@
+Scala Presentation Material:
+
+
+Functions In scala:
+
+// Problem 6a: Calculate the sum of elements divisible by a given no. using functions
+ 
+def sumOfElements(numArray: Array[Int], divisor: Int): Int = {
+    var sum: Int = 0
+    for (num <- numArray) {
+      if (num % divisor == 0)
+        sum += num
+    }
+    return sum
+  }
+
+val numbers = Array[Int](1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+println("Sum of multiples of 2 = " + sumOfElements(numbers, 2))
+println("Sum of multiples of 3 = " + sumOfElements(numbers, 3))
+
+
+println("Sum of multiples of 4 = " + sumOfElements(divisor=4, numArray=numbers))
+
+
+
+
+==============================================================================================
+
+Call By value 
+
+
+object Main {
+
+  def printResult(x:Int)={
+    println("Received parameter in printResult")
+    println("Parameter in printResult : " + x)
+    println("Parameter in printResult : " + x)
+  }
+  def calculate(x:Int,y:Int)={
+    println("Computed result in calculate : " + (x+y))
+    x + y
+  }
+
+
+  def main(args: Array[String]): Unit = {
+    printResult(calculate(10, 20))
+  }
+}
+
+
+Execution Result
+Output:
+
+Computed result in calculate : 30
+Received parameter in printResult
+Parameter in printResult : 30
+Parameter in printResult : 30
+
+============================================================================================================
+
+call by value :
+
+object Main {
+
+  def printResult(x: => Int) = { // note the syntax. Parameter name:<space>=>return type of the method
+    println("Received parameter in printResult")
+    println("Parameter in printResult : " + x)
+    println("Parameter in printResult : " + x)
+  }
+
+  def calculate(x:Int,y:Int)={
+    println("Computed result in calculate : " + (x+y))
+    x+y
+  }
+
+  def main(args: Array[String]): Unit = {
+    printResult(calculate(10, 20))
+  }
+}
+
+
+Execution Result
+Output:
+
+Received parameter in printResult
+Computed result in calculate : 30
+Parameter in printResult : 30
+Computed result in calculate : 30
+Parameter in printResult : 30
+
+
+How did this happen?
+Here, when we pass 'calculate', we are actually passing its code block with the values substituted(10 and 20). This is assigned to a parameter which is actually a method with no parameters. We can invoke 'calculate' whenever needed inside printResult. Thus when we want to pass a body of code to another method, we use call-by-name.
+Whenever the function that is passed by name is referred to in the called function, it will execute. Notice that 'calculate' is referred twice and hence is executed twice.
+
+
+================================================================================================================================
+
+Functional style:
+
+
+cube of number and filter out greater than 50:
+
+
+
+// a 
+ 
+var finalNumbers = new ArrayBuffer[Int]
+for(num <- numbers) {
+    var square = num * num
+    if (square < 100) finalNumbers += square
+}
+println("Final list: " + finalNumbers.mkString(", "))
+
+
+
+// b
+ 
+val squared = for(num <- numbers) yield num * num
+val finalNumbers = for(num <- squared if (num < 100)) yield num
+println("Final list: " + finalNumbers.mkString(", "))
+
+
+// c
+
+val finalNumbers = numbers.map(num => num * num).filter(num => num < 100)
+	// map() accepts a function as argument and evaluates it on each element.
+	// filter() is then called on the resulting collection to filter it based on the given function.
+	
+println("Final list: " + finalNumbers.mkString(", "))
+
+
+
+we have moved from imperative style of coding to functional style. In functional style, the entire solution to the problem is broken in to small tasks and solved through functions.The built in functions map and filter are accepting anonymous functions as arguments. 'map' and 'filter' are Higher Order functions. Here functions are 'first class citizens'.
+ 
+
+
+Methods like filter() need a function which returns a boolean value for each item of the collection. Such a function which takes one or more parameters and returns a boolean value is called a predicate.
+================================================================================================================================
+Functional style with currying
+
+Scala provides a way of writing functions with multiple parameter lists. 
+
+ 
+def total(list: List[Int]) (f: Int => Int) = {
+    var sum = 0
+    list.foreach { e => sum += f(e) }
+    sum
+}
+println(total(List(1,2,3,4,5)) (x => x))             // Sum of elements
+println(total(List(1,2,3,4,5)) (x => x*x))           // Sum of squares of elements
+
+
+
+==============================================================================================================================
+
+ Functional style using currying and inbuilt functions
+ 
+def total(list: List[Int])(f:Int => Int) = {
+    list.foldLeft(0) {(acc, e) => {
+            acc + f(e)
+        }
+    }
+}
+println(total(List(1,2,3,4,5,6))(x => x))           // Sum of elements
+println(total(List(1,2,3,4,5,6))(x => x*x))         // Sum of squares of elements
+
+===========================================================================================================================
+
+Sometimes we require a function to perform algorithms based on the input, i.e. a function performing functions. Although there are several ways of implementing this, Scala allows returning these algorithms (functions) instead of executing them right away – a function returning a function.
+
+
+Functions returning anonymous functions */
+
+
+object Main {
+  def main(args: Array[String]): Unit = {
+    def calculate(operation: String) = {
+      operation match {
+        case "add" => (x: Int, y: Int) => x + y             // Returning anonymous functions
+        case "subtract" => (x: Int, y: Int) => x - y        // Returning anonymous functions
+      }
+    }
+
+    val sub = calculate("subtract")   // Assigning the returned function to a variable
+    val add = calculate("add")
+    println(sub(4, 6))                // Calling the assigned function
+    println(sub(6, 4))
+    println(add(3, 7))
+    println(add(12, 6))
+  }
+}
+ 
+
+
+
+
