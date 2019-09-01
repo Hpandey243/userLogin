@@ -1,0 +1,35 @@
+
+public class MultipleObjectCreator {
+	
+	private Random randomData= new Random();
+	
+	public Employee  createAndFill(Employee classToBeInstantiated) throws Exception {
+		Employee instance = classToBeInstantiated.getClass().newInstance();
+		//java reflection api
+        for(Field field: classToBeInstantiated.getClass().getDeclaredFields()) {
+            //supresses access modifier of field (if private)
+        	field.setAccessible(true);
+            Object value = getRandomValueForField(field);
+            field.set(instance, value);
+        }
+        return instance;
+
+}
+
+	private Object getRandomValueForField(Field field) {
+		 Class<?> type = field.getType();
+		 // if field of class is int or Integer
+		 
+		  if(type.equals(Integer.TYPE) || type.equals(Integer.class)) {
+	            return randomData.nextInt();
+		  }
+		  else if(type.equals(String.class)) {
+	            return "Employe "+randomData.nextInt(100);
+		  }
+		  
+		  //.........based on data type set data
+		  return null;
+		  
+		
+	}
+}
